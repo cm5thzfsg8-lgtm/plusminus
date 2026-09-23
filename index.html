@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>덧셈 뺄셈 퀴즈</title>
+  <title>돼지쌤네 학교 덧셈과 뺄셈</title>
 
   <style>
     * {
@@ -139,6 +139,24 @@
       background: #1d4ed8;
     }
 
+    .reset-btn {
+      width: 80%;
+      max-width: 280px;
+      margin-top: 10px;
+      padding: 12px;
+      font-size: 17px;
+      font-weight: bold;
+      border: 2px solid #cbd5e1;
+      border-radius: 14px;
+      background: white;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    .reset-btn:hover {
+      background: #f8fafc;
+    }
+
     #result {
       min-height: 30px;
       margin-top: 18px;
@@ -192,7 +210,7 @@
 
   <div class="app">
 
-    <h1>🧮 덧셈 뺄셈 퀴즈</h1>
+    <h1>🐷 돼지쌤네 학교 덧셈과 뺄셈</h1>
     <div class="subtitle">문제를 풀고 점수를 올려보세요!</div>
 
     <div class="score-box">
@@ -225,6 +243,10 @@
 
     <button class="check-btn" onclick="checkAnswer()">
       정답 확인
+    </button>
+
+    <button class="reset-btn" onclick="resetScore()">
+      점수 초기화
     </button>
 
     <div id="result"></div>
@@ -488,23 +510,32 @@
 
     answered = true;
 
+    // 단계별 점수
+    // 1단계: 정답 +10점 / 오답 -5점
+    // 2단계: 정답 +20점 / 오답 -15점
+    // 3단계: 정답 +30점 / 오답 -25점
+    // 4단계: 정답 +40점 / 오답 -35점
+    // 5단계: 정답 +50점 / 오답 -45점
+    const correctPoints = currentLevel * 10;
+    const wrongPoints = currentLevel * 10 - 15;
+
     if (userAnswer === correctAnswer) {
 
-      score += 10;
+      score += correctPoints;
       updateScore();
 
       document.getElementById("result").textContent =
-        "🎉 정답입니다! +10점";
+        `🎉 정답입니다! +${correctPoints}점`;
 
       document.getElementById("result").className = "correct";
 
     } else {
 
-      score -= 5;
+      score -= wrongPoints;
       updateScore();
 
       document.getElementById("result").textContent =
-        `아쉬워요! 정답은 ${correctAnswer}입니다. -5점`;
+        `아쉬워요! 정답은 ${correctAnswer}입니다. -${wrongPoints}점`;
 
       document.getElementById("result").className = "wrong";
     }
@@ -513,6 +544,23 @@
     setTimeout(() => {
       generateQuestion();
     }, 1200);
+  }
+
+
+  // -----------------------------
+  // 점수 초기화
+  // -----------------------------
+
+  function resetScore() {
+    if (confirm("현재 점수를 0점으로 초기화할까요?")) {
+      score = 0;
+      updateScore();
+
+      document.getElementById("result").textContent =
+        "점수가 0점으로 초기화되었습니다.";
+
+      document.getElementById("result").className = "";
+    }
   }
 
 
