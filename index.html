@@ -92,6 +92,71 @@
       color: white;
     }
 
+
+    .timer-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 18px;
+    }
+
+    .timer {
+      position: relative;
+      width: 110px;
+      height: 110px;
+    }
+
+    .timer svg {
+      width: 110px;
+      height: 110px;
+      transform: rotate(-90deg);
+    }
+
+    .timer-track,
+    .timer-progress {
+      fill: none;
+      stroke-width: 9;
+    }
+
+    .timer-track {
+      stroke: #e5e7eb;
+    }
+
+    .timer-progress {
+      stroke: #2563eb;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.08s linear, stroke 0.2s ease;
+    }
+
+    .timer.warning .timer-progress {
+      stroke: #f59e0b;
+    }
+
+    .timer.danger .timer-progress {
+      stroke: #dc2626;
+    }
+
+    .timer-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    #timerSeconds {
+      font-size: 25px;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .timer-label {
+      margin-top: 5px;
+      font-size: 11px;
+      color: #64748b;
+    }
+
     .question-box {
       background: #f8fafc;
       border-radius: 18px;
@@ -228,6 +293,26 @@
       <button class="level-btn" onclick="changeLevel(5)">5단계</button>
     </div>
 
+
+    <div class="timer-box" aria-label="문제 제한 시간">
+      <div class="timer" id="timer">
+        <svg viewBox="0 0 110 110" aria-hidden="true">
+          <circle class="timer-track" cx="55" cy="55" r="46"></circle>
+          <circle
+            class="timer-progress"
+            id="timerProgress"
+            cx="55"
+            cy="55"
+            r="46"
+          ></circle>
+        </svg>
+        <div class="timer-text">
+          <div id="timerSeconds">7.0</div>
+          <div class="timer-label">초</div>
+        </div>
+      </div>
+    </div>
+
     <div class="question-box">
       <div id="question">문제를 준비하고 있습니다...</div>
     </div>
@@ -274,6 +359,13 @@
 
   let answered = false;
 
+  // 문제당 제한 시간
+  const TIME_LIMIT = 7;
+  let timerId = null;
+  let timerStartTime = 0;
+  let timerRunning = false;
+  const timerCircumference = 2 * Math.PI * 46;
+
 
   // -----------------------------
   // 점수 표시
@@ -290,6 +382,90 @@
 
   function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+
+  // -----------------------------
+  // 타이머
+  // -----------------------------
+
+  function stopTimer() {
+    if (timerId !== null) {
+      clearInterval(timerId);
+      timerId = null;
+    }
+
+    timerRunning = false;
+  }
+
+  function resetTimerVisual() {
+    const timer = document.getElementById("timer");
+    const progress = document.getElementById("timerProgress");
+    const seconds = document.getElementById("timerSeconds");
+
+    progress.style.strokeDasharray = timerCircumference;
+    progress.style.strokeDashoffset = 0;
+
+    seconds.textContent = TIME_LIMIT.toFixed(1);
+    timer.classList.remove("warning", "danger");
+  }
+
+  function startTimer() {
+    stopTimer();
+
+    const timer = document.getElementById("timer");
+    const progress = document.getElementById("timerProgress");
+    const seconds = document.getElementById("timerSeconds");
+
+    progress.style.strokeDasharray = timerCircumference;
+    progress.style.strokeDashoffset = 0;
+
+    timer.classList.remove("warning", "danger");
+    timerStartTime = performance.now();
+    timerRunning = true;
+
+    timerId = setInterval(() => {
+      if (!timerRunning || answered) {
+        return;
+      }
+
+      const elapsed = (performance.now() - timerStartTime) / 1000;
+      const remaining = Math.max(0, TIME_LIMIT - elapsed);
+      const ratio = remaining / TIME_LIMIT;
+
+      seconds.textContent = remaining.toFixed(1);
+      progress.style.strokeDashoffset =
+        timerCircumference * (1 - ratio);
+
+      timer.classList.toggle("warning", remaining <= 3 && remaining > 1);
+      timer.classList.toggle("danger", remaining <= 1);
+
+      if (remaining <= 0) {
+        stopTimer();
+        timeUp();
+      }
+    }, 50);
+  }
+
+  function timeUp() {
+    if (answered) {
+      return;
+    }
+
+    answered = true;
+
+    const wrongPoints = currentLevel * 10 - 5;
+    score -= wrongPoints;
+    updateScore();
+
+    document.getElementById("result").textContent =
+      `⏰ 시간 초과! 정답은 ${correctAnswer}입니다. -${wrongPoints}점`;
+
+    document.getElementById("result").className = "wrong";
+
+    setTimeout(() => {
+      generateQuestion();
+    }, 1400);
   }
 
 
@@ -482,6 +658,9 @@
     document.getElementById("question").textContent =
       `${number1} ${operator} ${number2} = ?`;
 
+    resetTimerVisual();
+    startTimer();
+
     document.getElementById("answer").focus();
   }
 
@@ -509,6 +688,7 @@
     const userAnswer = Number(input);
 
     answered = true;
+    stopTimer();
 
     // 단계별 점수
     // 1단계: 정답 +10점 / 오답 -5점
