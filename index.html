@@ -1,770 +1,730 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>돼지쌤네 학교 덧셈과 뺄셈</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>돼지쌤네 학교 덧셈과 뺄셈</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+* { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      font-family: Arial, "Noto Sans KR", sans-serif;
-      background: linear-gradient(135deg, #dbeafe, #fef3c7);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #1f2937;
-    }
+body {
+  margin: 0;
+  font-family: Arial, "Noto Sans KR", sans-serif;
+  background: linear-gradient(135deg, #dbeafe, #fef3c7);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #1f2937;
+}
 
-    .app {
-      width: 92%;
-      max-width: 520px;
-      background: white;
-      border-radius: 24px;
-      padding: 30px 25px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-      text-align: center;
-    }
+.app {
+  width: 92%;
+  max-width: 520px;
+  background: white;
+  border-radius: 24px;
+  padding: 30px 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  text-align: center;
+}
 
-    h1 {
-      margin-top: 0;
-      font-size: 30px;
-      color: #2563eb;
-    }
+h1 {
+  margin-top: 0;
+  font-size: 30px;
+  color: #2563eb;
+}
 
-    .subtitle {
-      color: #6b7280;
-      margin-bottom: 25px;
-    }
+.subtitle {
+  color: #6b7280;
+  margin-bottom: 25px;
+}
 
-    .score-box {
-      background: #eff6ff;
-      border-radius: 15px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
+.score-box {
+  background: #eff6ff;
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
 
-    .score-label {
-      font-size: 14px;
-      color: #64748b;
-    }
+.score-label {
+  font-size: 14px;
+  color: #64748b;
+}
 
-    #score {
-      font-size: 36px;
-      font-weight: bold;
-      color: #2563eb;
-      margin-top: 5px;
-    }
+#score {
+  font-size: 36px;
+  font-weight: bold;
+  color: #2563eb;
+  margin-top: 5px;
+}
 
-    .level-title {
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
+.level-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
 
-    .levels {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 7px;
-      margin-bottom: 25px;
-    }
+.levels {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+  margin-bottom: 20px;
+}
 
-    .level-btn {
-      border: none;
-      padding: 11px 5px;
-      border-radius: 10px;
-      background: #e5e7eb;
-      color: #374151;
-      cursor: pointer;
-      font-weight: bold;
-    }
+.level-btn {
+  border: none;
+  padding: 11px 5px;
+  border-radius: 10px;
+  background: #e5e7eb;
+  color: #374151;
+  cursor: pointer;
+  font-weight: bold;
+}
 
-    .level-btn:hover {
-      background: #dbeafe;
-    }
+.level-btn.active {
+  background: #2563eb;
+  color: white;
+}
 
-    .level-btn.active {
-      background: #2563eb;
-      color: white;
-    }
+.timer-box {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 15px;
+}
 
+.timer {
+  position: relative;
+  width: 110px;
+  height: 110px;
+}
 
-    .timer-box {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 0 auto 18px;
-    }
+.timer svg {
+  width: 110px;
+  height: 110px;
+  transform: rotate(-90deg);
+}
 
-    .timer {
-      position: relative;
-      width: 110px;
-      height: 110px;
-    }
+.timer-track,
+.timer-progress {
+  fill: none;
+  stroke-width: 9;
+}
 
-    .timer svg {
-      width: 110px;
-      height: 110px;
-      transform: rotate(-90deg);
-    }
+.timer-track { stroke: #e5e7eb; }
 
-    .timer-track,
-    .timer-progress {
-      fill: none;
-      stroke-width: 9;
-    }
+.timer-progress {
+  stroke: #2563eb;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.08s linear;
+}
 
-    .timer-track {
-      stroke: #e5e7eb;
-    }
+.timer.warning .timer-progress {
+  stroke: #f59e0b;
+}
 
-    .timer-progress {
-      stroke: #2563eb;
-      stroke-linecap: round;
-      transition: stroke-dashoffset 0.08s linear, stroke 0.2s ease;
-    }
+.timer.danger .timer-progress {
+  stroke: #dc2626;
+}
 
-    .timer.warning .timer-progress {
-      stroke: #f59e0b;
-    }
+.timer-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
 
-    .timer.danger .timer-progress {
-      stroke: #dc2626;
-    }
+#timerSeconds {
+  font-size: 25px;
+  font-weight: bold;
+}
 
-    .timer-text {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
+.timer-label {
+  font-size: 11px;
+  color: #64748b;
+}
 
-    #timerSeconds {
-      font-size: 25px;
-      font-weight: bold;
-      line-height: 1;
-    }
+/* 시작 및 정지 버튼 */
 
-    .timer-label {
-      margin-top: 5px;
-      font-size: 11px;
-      color: #64748b;
-    }
+.control-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
 
-    .question-box {
-      background: #f8fafc;
-      border-radius: 18px;
-      padding: 30px 15px;
-      margin-bottom: 20px;
-    }
+.control-btn {
+  width: 42%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-    #question {
-      font-size: 44px;
-      font-weight: bold;
-      letter-spacing: 3px;
-      color: #111827;
-    }
+.start-btn { background: #16a34a; }
+.stop-btn { background: #ef4444; }
 
-    #answer {
-      width: 80%;
-      max-width: 280px;
-      padding: 15px;
-      font-size: 28px;
-      text-align: center;
-      border: 3px solid #cbd5e1;
-      border-radius: 14px;
-      outline: none;
-    }
+.control-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 
-    #answer:focus {
-      border-color: #2563eb;
-    }
+.question-box {
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 30px 15px;
+  margin-bottom: 20px;
+}
 
-    .check-btn {
-      width: 80%;
-      max-width: 280px;
-      margin-top: 15px;
-      padding: 15px;
-      font-size: 20px;
-      font-weight: bold;
-      border: none;
-      border-radius: 14px;
-      background: #2563eb;
-      color: white;
-      cursor: pointer;
-    }
+#question {
+  font-size: 44px;
+  font-weight: bold;
+  letter-spacing: 3px;
+}
 
-    .check-btn:hover {
-      background: #1d4ed8;
-    }
+#answer {
+  width: 80%;
+  max-width: 280px;
+  padding: 15px;
+  font-size: 28px;
+  text-align: center;
+  border: 3px solid #cbd5e1;
+  border-radius: 14px;
+  outline: none;
+}
 
-    .reset-btn {
-      width: 80%;
-      max-width: 280px;
-      margin-top: 10px;
-      padding: 12px;
-      font-size: 17px;
-      font-weight: bold;
-      border: 2px solid #cbd5e1;
-      border-radius: 14px;
-      background: white;
-      color: #475569;
-      cursor: pointer;
-    }
+#answer:focus {
+  border-color: #2563eb;
+}
 
-    .reset-btn:hover {
-      background: #f8fafc;
-    }
+.check-btn {
+  width: 80%;
+  max-width: 280px;
+  margin-top: 15px;
+  padding: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 14px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
 
-    #result {
-      min-height: 30px;
-      margin-top: 18px;
-      font-size: 19px;
-      font-weight: bold;
-    }
+.reset-btn {
+  width: 80%;
+  max-width: 280px;
+  margin-top: 10px;
+  padding: 12px;
+  font-size: 17px;
+  font-weight: bold;
+  border: 2px solid #cbd5e1;
+  border-radius: 14px;
+  background: white;
+  color: #475569;
+  cursor: pointer;
+}
 
-    .correct {
-      color: #16a34a;
-    }
+#result {
+  min-height: 30px;
+  margin-top: 18px;
+  font-size: 19px;
+  font-weight: bold;
+}
 
-    .wrong {
-      color: #dc2626;
-    }
+.correct { color: #16a34a; }
+.wrong { color: #dc2626; }
 
-    .level-info {
-      margin-top: 20px;
-      padding: 12px;
-      background: #f9fafb;
-      border-radius: 12px;
-      color: #64748b;
-      font-size: 14px;
-      line-height: 1.6;
-    }
+.level-info {
+  margin-top: 20px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 12px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
 
-    @media (max-width: 450px) {
-      .app {
-        padding: 25px 15px;
-      }
-
-      h1 {
-        font-size: 26px;
-      }
-
-      #question {
-        font-size: 36px;
-      }
-
-      .levels {
-        grid-template-columns: repeat(5, 1fr);
-      }
-
-      .level-btn {
-        font-size: 13px;
-      }
-    }
-  </style>
+@media (max-width: 450px) {
+  .app { padding: 25px 15px; }
+  h1 { font-size: 26px; }
+  #question { font-size: 36px; }
+  .level-btn { font-size: 13px; }
+}
+</style>
 </head>
 
 <body>
 
-  <div class="app">
+<div class="app">
 
-    <h1>🐷 돼지쌤네 학교 덧셈과 뺄셈</h1>
-    <div class="subtitle">문제를 풀고 점수를 올려보세요!</div>
-
-    <div class="score-box">
-      <div class="score-label">현재 점수</div>
-      <div id="score">0점</div>
-    </div>
-
-    <div class="level-title">난이도를 선택하세요</div>
-
-    <div class="levels">
-      <button class="level-btn active" onclick="changeLevel(1)">1단계</button>
-      <button class="level-btn" onclick="changeLevel(2)">2단계</button>
-      <button class="level-btn" onclick="changeLevel(3)">3단계</button>
-      <button class="level-btn" onclick="changeLevel(4)">4단계</button>
-      <button class="level-btn" onclick="changeLevel(5)">5단계</button>
-    </div>
-
-
-    <div class="timer-box" aria-label="문제 제한 시간">
-      <div class="timer" id="timer">
-        <svg viewBox="0 0 110 110" aria-hidden="true">
-          <circle class="timer-track" cx="55" cy="55" r="46"></circle>
-          <circle
-            class="timer-progress"
-            id="timerProgress"
-            cx="55"
-            cy="55"
-            r="46"
-          ></circle>
-        </svg>
-        <div class="timer-text">
-          <div id="timerSeconds">7.0</div>
-          <div class="timer-label">초</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="question-box">
-      <div id="question">문제를 준비하고 있습니다...</div>
-    </div>
-
-    <input
-      type="number"
-      id="answer"
-      placeholder="정답 입력"
-      autocomplete="off"
-    >
-
-    <br>
-
-    <button class="check-btn" onclick="checkAnswer()">
-      정답 확인
-    </button>
-
-    <button class="reset-btn" onclick="resetScore()">
-      점수 초기화
-    </button>
-
-    <div id="result"></div>
-
-    <div class="level-info" id="levelInfo">
-      1단계: 받아올림이 없는 한자리수 덧셈과 뺄셈
-    </div>
-
+  <h1>🐷 돼지쌤네 학교 덧셈과 뺄셈</h1>
+  <div class="subtitle">
+    문제를 풀고 점수를 올려보세요!
   </div>
 
+  <div class="score-box">
+    <div class="score-label">현재 점수</div>
+    <div id="score">0점</div>
+  </div>
+
+  <div class="level-title">난이도를 선택하세요</div>
+
+  <div class="levels">
+    <button class="level-btn active" onclick="changeLevel(1)">1단계</button>
+    <button class="level-btn" onclick="changeLevel(2)">2단계</button>
+    <button class="level-btn" onclick="changeLevel(3)">3단계</button>
+    <button class="level-btn" onclick="changeLevel(4)">4단계</button>
+    <button class="level-btn" onclick="changeLevel(5)">5단계</button>
+  </div>
+
+  <div class="timer-box">
+    <div class="timer" id="timer">
+      <svg viewBox="0 0 110 110">
+        <circle class="timer-track"
+          cx="55" cy="55" r="46"></circle>
+        <circle class="timer-progress"
+          id="timerProgress"
+          cx="55" cy="55" r="46"></circle>
+      </svg>
+      <div class="timer-text">
+        <div id="timerSeconds">10.0</div>
+        <div class="timer-label">초</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="control-buttons">
+    <button id="startBtn"
+      class="control-btn start-btn"
+      onclick="startGame()">▶ 시작</button>
+
+    <button id="stopBtn"
+      class="control-btn stop-btn"
+      onclick="pauseGame()" disabled>⏸ 정지</button>
+  </div>
+
+  <div class="question-box">
+    <div id="question">시작 버튼을 눌러주세요!</div>
+  </div>
+
+  <input type="number" id="answer"
+    placeholder="정답 입력"
+    autocomplete="off" disabled>
+
+  <br>
+
+  <button class="check-btn"
+    id="checkBtn"
+    onclick="checkAnswer()" disabled>
+    정답 확인
+  </button>
+
+  <button class="reset-btn" onclick="resetScore()">
+    점수 초기화
+  </button>
+
+  <div id="result"></div>
+
+  <div class="level-info" id="levelInfo">
+    1단계: 받아올림이 없는 한자리수 덧셈과 뺄셈
+  </div>
+
+</div>
 
 <script>
 
-  // -----------------------------
-  // 게임 기본 설정
-  // -----------------------------
+// 기본 설정
+let score = 0;
+let currentLevel = 1;
 
-  let score = 0;
-  let currentLevel = 1;
+let number1 = 0;
+let number2 = 0;
+let operator = "+";
+let correctAnswer = 0;
 
-  let number1 = 0;
-  let number2 = 0;
-  let operator = "+";
-  let correctAnswer = 0;
+let answered = false;
+let gameStarted = false;
+let paused = false;
 
-  let answered = false;
+const TIME_LIMIT = 10;
 
-  // 문제당 제한 시간
-  const TIME_LIMIT = 7;
-  let timerId = null;
-  let timerStartTime = 0;
-  let timerRunning = false;
-  const timerCircumference = 2 * Math.PI * 46;
+let remainingTime = TIME_LIMIT;
+let timerId = null;
+let timerStartTime = 0;
+let timerRunning = false;
+let nextQuestionTimeout = null;
 
+const timerCircumference = 2 * Math.PI * 46;
 
-  // -----------------------------
-  // 점수 표시
-  // -----------------------------
+function updateScore() {
+  document.getElementById("score").textContent =
+    score + "점";
+}
 
-  function updateScore() {
-    document.getElementById("score").textContent = score + "점";
+function randomInt(min, max) {
+  return Math.floor(Math.random() *
+    (max - min + 1)) + min;
+}
+
+// 버튼 상태
+function updateButtons() {
+  const playing = gameStarted && !paused;
+
+  document.getElementById("startBtn").disabled =
+    playing;
+
+  document.getElementById("stopBtn").disabled =
+    !playing;
+
+  document.getElementById("answer").disabled =
+    !playing || answered;
+
+  document.getElementById("checkBtn").disabled =
+    !playing || answered;
+}
+
+// 타이머 표시
+function updateTimerVisual() {
+  const timer = document.getElementById("timer");
+  const progress =
+    document.getElementById("timerProgress");
+
+  document.getElementById("timerSeconds").textContent =
+    remainingTime.toFixed(1);
+
+  progress.style.strokeDasharray =
+    timerCircumference;
+
+  progress.style.strokeDashoffset =
+    timerCircumference *
+    (1 - remainingTime / TIME_LIMIT);
+
+  timer.classList.toggle("warning",
+    remainingTime <= 3 && remainingTime > 1);
+
+  timer.classList.toggle("danger",
+    remainingTime <= 1);
+}
+
+function stopTimer() {
+  if (timerId !== null) {
+    clearInterval(timerId);
+    timerId = null;
   }
+  timerRunning = false;
+}
 
+function startTimer() {
+  stopTimer();
 
-  // -----------------------------
-  // 난수 생성
-  // -----------------------------
+  timerStartTime = performance.now();
+  const initialRemaining = remainingTime;
 
-  function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+  timerRunning = true;
 
+  timerId = setInterval(() => {
+    if (!timerRunning || paused || answered) return;
 
-  // -----------------------------
-  // 타이머
-  // -----------------------------
+    const elapsed =
+      (performance.now() - timerStartTime) / 1000;
 
-  function stopTimer() {
-    if (timerId !== null) {
-      clearInterval(timerId);
-      timerId = null;
+    remainingTime =
+      Math.max(0, initialRemaining - elapsed);
+
+    updateTimerVisual();
+
+    if (remainingTime <= 0) {
+      stopTimer();
+      timeUp();
     }
+  }, 50);
+}
 
-    timerRunning = false;
+// 시작
+function startGame() {
+  if (gameStarted && !paused) return;
+
+  if (!gameStarted) {
+    gameStarted = true;
+    paused = false;
+    generateQuestion();
+  } else {
+    paused = false;
+    startTimer();
   }
 
-  function resetTimerVisual() {
-    const timer = document.getElementById("timer");
-    const progress = document.getElementById("timerProgress");
-    const seconds = document.getElementById("timerSeconds");
+  updateButtons();
 
-    progress.style.strokeDasharray = timerCircumference;
-    progress.style.strokeDashoffset = 0;
-
-    seconds.textContent = TIME_LIMIT.toFixed(1);
-    timer.classList.remove("warning", "danger");
+  if (!answered) {
+    document.getElementById("answer").focus();
   }
+}
 
-  function startTimer() {
-    stopTimer();
+// 정지
+function pauseGame() {
+  if (!gameStarted || paused) return;
 
-    const timer = document.getElementById("timer");
-    const progress = document.getElementById("timerProgress");
-    const seconds = document.getElementById("timerSeconds");
+  paused = true;
+  stopTimer();
 
-    progress.style.strokeDasharray = timerCircumference;
-    progress.style.strokeDashoffset = 0;
+  document.getElementById("result").textContent =
+    "⏸ 일시정지 중입니다.";
 
-    timer.classList.remove("warning", "danger");
-    timerStartTime = performance.now();
-    timerRunning = true;
+  document.getElementById("result").className = "";
 
-    timerId = setInterval(() => {
-      if (!timerRunning || answered) {
-        return;
+  updateButtons();
+}
+
+// 시간 초과
+function timeUp() {
+  if (answered) return;
+
+  answered = true;
+
+  const wrongPoints = currentLevel * 10 - 5;
+
+  score -= wrongPoints;
+  updateScore();
+
+  document.getElementById("result").textContent =
+    `⏰ 시간 초과! 정답은 ${correctAnswer}입니다. -${wrongPoints}점`;
+
+  document.getElementById("result").className =
+    "wrong";
+
+  updateButtons();
+
+  nextQuestionTimeout = setTimeout(() => {
+    nextQuestionTimeout = null;
+    if (gameStarted && !paused) generateQuestion();
+  }, 1400);
+}
+
+// 난이도 변경
+function changeLevel(level) {
+  currentLevel = level;
+
+  document.querySelectorAll(".level-btn")
+    .forEach((button, index) => {
+      button.classList.toggle("active",
+        index + 1 === level);
+    });
+
+  const descriptions = {
+    1: "1단계: 받아올림이 없는 한자리수 덧셈과 뺄셈",
+    2: "2단계: 받아올림이 있는 한자리수 덧셈과 두자리수-한자리수 뺄셈",
+    3: "3단계: 받아올림이 있는 두자리수 덧셈과 받아내림이 있는 두자리수 뺄셈",
+    4: "4단계: 백의자리 덧셈과 뺄셈",
+    5: "5단계: 천의자리 덧셈과 뺄셈"
+  };
+
+  document.getElementById("levelInfo").textContent =
+    descriptions[level];
+
+  stopTimer();
+  clearTimeout(nextQuestionTimeout);
+  nextQuestionTimeout = null;
+
+  gameStarted = false;
+  paused = false;
+  answered = false;
+  remainingTime = TIME_LIMIT;
+
+  updateTimerVisual();
+
+  document.getElementById("question").textContent =
+    "시작 버튼을 눌러주세요!";
+
+  document.getElementById("result").textContent = "";
+  document.getElementById("answer").value = "";
+
+  updateButtons();
+}
+
+// 문제 생성
+function generateQuestion() {
+  stopTimer();
+
+  answered = false;
+
+  document.getElementById("answer").value = "";
+  document.getElementById("result").textContent = "";
+  document.getElementById("result").className = "";
+
+  switch (currentLevel) {
+
+    case 1:
+      operator = Math.random() < 0.5 ? "+" : "-";
+
+      if (operator === "+") {
+        do {
+          number1 = randomInt(1, 9);
+          number2 = randomInt(1, 9);
+        } while (number1 + number2 >= 10);
+      } else {
+        number1 = randomInt(1, 9);
+        number2 = randomInt(1, number1);
       }
+      break;
 
-      const elapsed = (performance.now() - timerStartTime) / 1000;
-      const remaining = Math.max(0, TIME_LIMIT - elapsed);
-      const ratio = remaining / TIME_LIMIT;
+    case 2:
+      operator = Math.random() < 0.5 ? "+" : "-";
 
-      seconds.textContent = remaining.toFixed(1);
-      progress.style.strokeDashoffset =
-        timerCircumference * (1 - ratio);
-
-      timer.classList.toggle("warning", remaining <= 3 && remaining > 1);
-      timer.classList.toggle("danger", remaining <= 1);
-
-      if (remaining <= 0) {
-        stopTimer();
-        timeUp();
+      if (operator === "+") {
+        do {
+          number1 = randomInt(1, 9);
+          number2 = randomInt(1, 9);
+        } while (number1 + number2 < 10);
+      } else {
+        number1 = randomInt(10, 99);
+        number2 = randomInt(1, 9);
       }
-    }, 50);
+      break;
+
+    case 3:
+      operator = Math.random() < 0.5 ? "+" : "-";
+
+      if (operator === "+") {
+        do {
+          number1 = randomInt(10, 99);
+          number2 = randomInt(10, 99);
+        } while (
+          (number1 % 10) + (number2 % 10) < 10
+        );
+      } else {
+        do {
+          number1 = randomInt(10, 99);
+          number2 = randomInt(10, 99);
+
+          if (number1 < number2) {
+            [number1, number2] =
+              [number2, number1];
+          }
+        } while (
+          (number1 % 10) >= (number2 % 10)
+        );
+      }
+      break;
+
+    case 4:
+      operator = Math.random() < 0.5 ? "+" : "-";
+
+      number1 = randomInt(100, 999);
+      number2 = randomInt(100, 999);
+
+      if (operator === "-" && number1 < number2) {
+        [number1, number2] = [number2, number1];
+      }
+      break;
+
+    case 5:
+      operator = Math.random() < 0.5 ? "+" : "-";
+
+      number1 = randomInt(1000, 9999);
+      number2 = randomInt(1000, 9999);
+
+      if (operator === "-" && number1 < number2) {
+        [number1, number2] = [number2, number1];
+      }
+      break;
   }
 
-  function timeUp() {
-    if (answered) {
-      return;
-    }
+  correctAnswer =
+    operator === "+"
+      ? number1 + number2
+      : number1 - number2;
 
-    answered = true;
+  document.getElementById("question").textContent =
+    `${number1} ${operator} ${number2} = ?`;
 
-    const wrongPoints = currentLevel * 10 - 5;
+  remainingTime = TIME_LIMIT;
+  updateTimerVisual();
+  updateButtons();
+  startTimer();
+
+  document.getElementById("answer").focus();
+}
+
+// 정답 확인
+function checkAnswer() {
+  if (answered || paused || !gameStarted) return;
+
+  const input =
+    document.getElementById("answer").value.trim();
+
+  if (input === "") {
+    document.getElementById("result").textContent =
+      "정답을 입력해주세요.";
+    document.getElementById("result").className =
+      "wrong";
+    return;
+  }
+
+  const userAnswer = Number(input);
+
+  answered = true;
+  stopTimer();
+
+  const correctPoints = currentLevel * 10;
+  const wrongPoints = currentLevel * 10 - 5;
+
+  if (userAnswer === correctAnswer) {
+    score += correctPoints;
+
+    document.getElementById("result").textContent =
+      `🎉 정답입니다! +${correctPoints}점`;
+
+    document.getElementById("result").className =
+      "correct";
+  } else {
     score -= wrongPoints;
+
+    document.getElementById("result").textContent =
+      `아쉬워요! 정답은 ${correctAnswer}입니다. -${wrongPoints}점`;
+
+    document.getElementById("result").className =
+      "wrong";
+  }
+
+  updateScore();
+  updateButtons();
+
+  nextQuestionTimeout = setTimeout(() => {
+    nextQuestionTimeout = null;
+    if (gameStarted && !paused) generateQuestion();
+  }, 1200);
+}
+
+// 점수 초기화
+function resetScore() {
+  if (confirm("현재 점수를 0점으로 초기화할까요?")) {
+    score = 0;
     updateScore();
 
     document.getElementById("result").textContent =
-      `⏰ 시간 초과! 정답은 ${correctAnswer}입니다. -${wrongPoints}점`;
-
-    document.getElementById("result").className = "wrong";
-
-    setTimeout(() => {
-      generateQuestion();
-    }, 1400);
-  }
-
-
-  // -----------------------------
-  // 난이도 변경
-  // -----------------------------
-
-  function changeLevel(level) {
-
-    currentLevel = level;
-
-    document.querySelectorAll(".level-btn").forEach((button, index) => {
-      if (index + 1 === level) {
-        button.classList.add("active");
-      } else {
-        button.classList.remove("active");
-      }
-    });
-
-    const descriptions = {
-      1: "1단계: 받아올림이 없는 한자리수 덧셈과 뺄셈",
-      2: "2단계: 받아올림이 있는 한자리수 덧셈과 두자리수-한자리수 뺄셈",
-      3: "3단계: 받아올림이 있는 두자리수 덧셈과 받아내림이 있는 두자리수 뺄셈",
-      4: "4단계: 백의자리 덧셈과 뺄셈",
-      5: "5단계: 천의자리 덧셈과 뺄셈"
-    };
-
-    document.getElementById("levelInfo").textContent =
-      descriptions[level];
-
-    generateQuestion();
-  }
-
-
-  // -----------------------------
-  // 문제 생성
-  // -----------------------------
-
-  function generateQuestion() {
-
-    answered = false;
-
-    document.getElementById("answer").value = "";
-    document.getElementById("result").textContent = "";
+      "점수가 0점으로 초기화되었습니다.";
     document.getElementById("result").className = "";
-
-    switch (currentLevel) {
-
-      // =============================
-      // 1단계
-      // 받아올림 없는 한자리수 + 한자리수
-      // 한자리수 - 한자리수
-      // =============================
-
-      case 1:
-
-        operator = Math.random() < 0.5 ? "+" : "-";
-
-        if (operator === "+") {
-
-          do {
-            number1 = randomInt(1, 9);
-            number2 = randomInt(1, 9);
-          } while (number1 + number2 >= 10);
-
-        } else {
-
-          number1 = randomInt(1, 9);
-          number2 = randomInt(1, number1);
-
-        }
-
-        break;
-
-
-      // =============================
-      // 2단계
-      // 받아올림 있는 한자리수 + 한자리수
-      // 두자리수 - 한자리수
-      // =============================
-
-      case 2:
-
-        operator = Math.random() < 0.5 ? "+" : "-";
-
-        if (operator === "+") {
-
-          do {
-            number1 = randomInt(1, 9);
-            number2 = randomInt(1, 9);
-          } while (number1 + number2 < 10);
-
-        } else {
-
-          number1 = randomInt(10, 99);
-          number2 = randomInt(1, 9);
-
-          if (number1 < number2) {
-            [number1, number2] = [number2, number1];
-          }
-
-        }
-
-        break;
-
-
-      // =============================
-      // 3단계
-      // 받아올림 있는 두자리수 + 두자리수
-      // 받아내림 있는 두자리수 - 두자리수
-      // =============================
-
-      case 3:
-
-        operator = Math.random() < 0.5 ? "+" : "-";
-
-        if (operator === "+") {
-
-          do {
-            number1 = randomInt(10, 99);
-            number2 = randomInt(10, 99);
-          } while (
-            (number1 % 10) + (number2 % 10) < 10
-          );
-
-        } else {
-
-          do {
-            number1 = randomInt(10, 99);
-            number2 = randomInt(10, 99);
-
-            if (number1 < number2) {
-              [number1, number2] = [number2, number1];
-            }
-
-          } while (
-            (number1 % 10) >= (number2 % 10)
-          );
-
-        }
-
-        break;
-
-
-      // =============================
-      // 4단계
-      // 백의자리 덧셈과 뺄셈
-      // =============================
-
-      case 4:
-
-        operator = Math.random() < 0.5 ? "+" : "-";
-
-        number1 = randomInt(100, 999);
-        number2 = randomInt(100, 999);
-
-        if (operator === "-" && number1 < number2) {
-          [number1, number2] = [number2, number1];
-        }
-
-        break;
-
-
-      // =============================
-      // 5단계
-      // 천의자리 덧셈과 뺄셈
-      // =============================
-
-      case 5:
-
-        operator = Math.random() < 0.5 ? "+" : "-";
-
-        number1 = randomInt(1000, 9999);
-        number2 = randomInt(1000, 9999);
-
-        if (operator === "-" && number1 < number2) {
-          [number1, number2] = [number2, number1];
-        }
-
-        break;
-    }
-
-
-    correctAnswer =
-      operator === "+"
-        ? number1 + number2
-        : number1 - number2;
-
-
-    document.getElementById("question").textContent =
-      `${number1} ${operator} ${number2} = ?`;
-
-    resetTimerVisual();
-    startTimer();
-
-    document.getElementById("answer").focus();
   }
+}
 
-
-  // -----------------------------
-  // 정답 확인
-  // -----------------------------
-
-  function checkAnswer() {
-
-    // 이미 답을 제출한 문제는 다시 채점하지 않음
-    if (answered) {
-      return;
-    }
-
-    const input = document.getElementById("answer").value.trim();
-
-    if (input === "") {
-      document.getElementById("result").textContent =
-        "정답을 입력해주세요.";
-      document.getElementById("result").className = "wrong";
-      return;
-    }
-
-    const userAnswer = Number(input);
-
-    answered = true;
-    stopTimer();
-
-    // 단계별 점수
-    // 1단계: 정답 +10점 / 오답 -5점
-    // 2단계: 정답 +20점 / 오답 -15점
-    // 3단계: 정답 +30점 / 오답 -25점
-    // 4단계: 정답 +40점 / 오답 -35점
-    // 5단계: 정답 +50점 / 오답 -45점
-    const correctPoints = currentLevel * 10;
-    const wrongPoints = currentLevel * 10 - 5;
-
-    if (userAnswer === correctAnswer) {
-
-      score += correctPoints;
-      updateScore();
-
-      document.getElementById("result").textContent =
-        `🎉 정답입니다! +${correctPoints}점`;
-
-      document.getElementById("result").className = "correct";
-
-    } else {
-
-      score -= wrongPoints;
-      updateScore();
-
-      document.getElementById("result").textContent =
-        `아쉬워요! 정답은 ${correctAnswer}입니다. -${wrongPoints}점`;
-
-      document.getElementById("result").className = "wrong";
-    }
-
-    // 잠시 결과를 보여준 후 다음 문제
-    setTimeout(() => {
-      generateQuestion();
-    }, 1200);
-  }
-
-
-  // -----------------------------
-  // 점수 초기화
-  // -----------------------------
-
-  function resetScore() {
-    if (confirm("현재 점수를 0점으로 초기화할까요?")) {
-      score = 0;
-      updateScore();
-
-      document.getElementById("result").textContent =
-        "점수가 0점으로 초기화되었습니다.";
-
-      document.getElementById("result").className = "";
-    }
-  }
-
-
-  // -----------------------------
-  // 엔터키로 정답 제출
-  // -----------------------------
-
-  document.getElementById("answer").addEventListener("keydown", function(event) {
-
+// 엔터키
+document.getElementById("answer")
+  .addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
       checkAnswer();
     }
-
   });
 
-
-  // -----------------------------
-  // 게임 시작
-  // -----------------------------
-
-  updateScore();
-  generateQuestion();
+// 최초 실행: 시작 버튼을 누를 때까지 대기
+updateScore();
+updateTimerVisual();
+updateButtons();
 
 </script>
-
 </body>
 </html>
